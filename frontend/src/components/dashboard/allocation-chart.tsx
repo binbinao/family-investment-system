@@ -50,7 +50,7 @@ export function AllocationChart({ data }: { data: AllocationItem[] }) {
               ))}
             </Pie>
             <Tooltip
-              formatter={(value: number) => formatCurrency(value)}
+              formatter={(value) => formatCurrency(Number(value))}
               contentStyle={{
                 borderRadius: "8px",
                 border: "1px solid hsl(var(--border))",
@@ -58,7 +58,7 @@ export function AllocationChart({ data }: { data: AllocationItem[] }) {
               }}
             />
             <Legend
-              formatter={(value: string, entry: any) => {
+              formatter={(value) => {
                 const item = data.find((d) => d.asset_type === value);
                 return `${value} ${item ? item.percentage.toFixed(1) : 0}%`;
               }}

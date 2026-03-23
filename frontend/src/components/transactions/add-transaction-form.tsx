@@ -76,7 +76,7 @@ export function AddTransactionForm({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>持仓标的</Label>
-              <Select value={holdingId} onValueChange={setHoldingId}>
+              <Select value={holdingId} onValueChange={(v) => setHoldingId(v ?? "")}>
                 <SelectTrigger>
                   <SelectValue placeholder="选择标的" />
                 </SelectTrigger>
