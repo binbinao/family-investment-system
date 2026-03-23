@@ -1,3 +1,4 @@
+from app.models.ai_conversation import AIConversation
 from app.models.allocation_target import AllocationTarget
 from app.models.holding import Holding
 from app.models.operation_log import OperationLog
@@ -14,4 +15,5 @@ __all__ = [
     "PriceCache",
     "Snapshot",
     "AllocationTarget",
+    "AIConversation",
 ]

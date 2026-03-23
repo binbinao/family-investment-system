@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { href: "/", label: "总览" },
   { href: "/trade", label: "记账" },
   { href: "/history", label: "交易历史" },
+  { href: "/ai", label: "AI" },
   { href: "/allocation", label: "配置" },
 ];
 

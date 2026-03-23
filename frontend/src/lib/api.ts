@@ -8,6 +8,7 @@ import type {
   DashboardSummary,
   AllocationItem,
   AllocationTarget,
+  AIConversation,
   DeviationResult,
   ImportResult,
   LoginRequest,
@@ -120,6 +121,12 @@ export const api = {
         body: JSON.stringify({ targets }),
       }),
     deviation: () => request<DeviationResult>("/allocation/deviation"),
+  },
+
+  ai: {
+    history: (limit = 50) =>
+      request<AIConversation[]>(`/ai/history?limit=${limit}`),
+    chatUrl: `${API_BASE}/ai/chat`,
   },
 
   import: {

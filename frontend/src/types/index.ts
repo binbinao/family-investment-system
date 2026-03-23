@@ -128,3 +128,19 @@ export interface ImportResult {
   success: { row: number; symbol: string; name?: string; type?: string }[];
   errors: { row: number; error: string }[];
 }
+
+export interface AIConversation {
+  id: string;
+  mode: "quick" | "deep";
+  question: string;
+  answer: string | null;
+  created_at: string;
+}
+
+export interface ChatMessage {
+  role: "user" | "assistant" | "system";
+  content: string;
+  mode?: "quick" | "deep";
+  progress?: string;
+  isStreaming?: boolean;
+}

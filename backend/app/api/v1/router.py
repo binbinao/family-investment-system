@@ -1,5 +1,6 @@
 from fastapi import APIRouter
 
+from app.api.v1.ai import router as ai_router
 from app.api.v1.allocation import router as allocation_router
 from app.api.v1.auth import router as auth_router
 from app.api.v1.dashboard import router as dashboard_router
@@ -18,3 +19,4 @@ api_router.include_router(market_router, prefix="/market", tags=["行情"])
 api_router.include_router(imports_router, prefix="/import", tags=["导入"])
 api_router.include_router(snapshots_router, prefix="/snapshots", tags=["快照"])
 api_router.include_router(allocation_router, prefix="/allocation", tags=["配置"])
+api_router.include_router(ai_router, prefix="/ai", tags=["AI"])
