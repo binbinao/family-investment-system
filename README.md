@@ -15,19 +15,21 @@
 - **家庭资产总览**：总市值、盈亏、日涨跌、配置饼图
 - **持仓与交易管理**：手动录入 / Excel 批量导入，行情自动更新
 - **AI 分析助手**：每日晨报、个股深度分析、自然语言问答
-- **家庭成员管理**：多人共享，按人查看持仓
+- **家庭共享**：多人共享同一份数据，操作日志可追溯
 
 ## 技术栈
 
-- **前端**：Next.js + TypeScript + Tailwind CSS + shadcn/ui
-- **后端**：Next.js API Routes
-- **数据库**：PostgreSQL + Prisma ORM
-- **AI**：OpenAI / Claude API
-- **部署**：Docker 自部署
+- **前端**：Next.js 14+ / TypeScript / Tailwind CSS / shadcn/ui
+- **后端**：FastAPI (Python 3.11+)
+- **数据库**：PostgreSQL 16 + SQLAlchemy 2.0 + Alembic
+- **缓存**：Redis 7（Session 存储 + 行情缓存）
+- **AI**：DeepSeek API
+- **行情数据**：AKShare（开源）
+- **部署**：Docker Compose 一键部署
 
 ## 项目状态
 
-🚧 MVP 开发中
+MVP 开发中 — Phase 1（能用）
 
 ## 许可证
 
