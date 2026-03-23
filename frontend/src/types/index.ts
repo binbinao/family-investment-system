@@ -83,3 +83,48 @@ export interface LoginRequest {
   username: string;
   password: string;
 }
+
+export interface SnapshotPoint {
+  date: string;
+  total_market_value: number;
+  total_cost: number;
+  total_profit_loss: number;
+}
+
+export interface AllocationTarget {
+  asset_type: string;
+  target_ratio: number;
+}
+
+export interface DeviationItem {
+  asset_type: string;
+  target_pct: number;
+  actual_pct: number;
+  deviation: number;
+  is_alert: boolean;
+  adjust_direction: string;
+  adjust_amount: number;
+}
+
+export interface DeviationResult {
+  has_targets: boolean;
+  has_alert?: boolean;
+  deviations: DeviationItem[];
+}
+
+export interface MarketStatus {
+  symbol: string;
+  name: string;
+  latest_price: number;
+  price_change: number | null;
+  price_change_pct: number | null;
+  updated_at: string;
+  source: string;
+  fail_count: number;
+  is_stale: boolean;
+}
+
+export interface ImportResult {
+  success: { row: number; symbol: string; name?: string; type?: string }[];
+  errors: { row: number; error: string }[];
+}

@@ -5,6 +5,9 @@ import { api } from "@/lib/api";
 import { SummaryCards } from "@/components/dashboard/summary-cards";
 import { AllocationChart } from "@/components/dashboard/allocation-chart";
 import { HoldingsTable } from "@/components/dashboard/holdings-table";
+import { NetValueChart } from "@/components/dashboard/net-value-chart";
+import { DeviationAlert } from "@/components/dashboard/deviation-alert";
+import { MarketStatusBar } from "@/components/dashboard/market-status-bar";
 import type { AllocationItem, DashboardSummary, Holding } from "@/types";
 
 export default function HomePage() {
@@ -44,14 +47,23 @@ export default function HomePage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">家庭资产总览</h1>
-        <p className="text-sm text-muted-foreground">
-          一眼看清家里的投资状况
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight">
+            家庭资产总览
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            一眼看清家里的投资状况
+          </p>
+        </div>
+        <MarketStatusBar />
       </div>
 
+      <DeviationAlert />
+
       {summary && <SummaryCards data={summary} />}
+
+      <NetValueChart />
 
       <div className="grid gap-6 lg:grid-cols-3">
         <div className="lg:col-span-1">

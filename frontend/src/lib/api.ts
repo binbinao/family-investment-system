@@ -7,7 +7,12 @@ import type {
   TransactionCreate,
   DashboardSummary,
   AllocationItem,
+  AllocationTarget,
+  DeviationResult,
+  ImportResult,
   LoginRequest,
+  MarketStatus,
+  SnapshotPoint,
 } from "@/types";
 
 const API_BASE =
@@ -86,6 +91,64 @@ export const api = {
   dashboard: {
     summary: () => request<DashboardSummary>("/dashboard/summary"),
     allocation: () => request<AllocationItem[]>("/dashboard/allocation"),
+  },
+
+  market: {
+    refresh: () =>
+      request<{ total: number; success: number; failed: number; skipped: number }>(
+        "/market/refresh",
+        { method: "POST" },
+      ),
+    status: () => request<MarketStatus[]>("/market/status"),
+  },
+
+  snapshots: {
+    list: (startDate?: string, endDate?: string) => {
+      const params = new URLSearchParams();
+      if (startDate) params.set("start_date", startDate);
+      if (endDate) params.set("end_date", endDate);
+      const qs = params.toString();
+      return request<SnapshotPoint[]>(`/snapshots${qs ? `?${qs}` : ""}`);
+    },
+  },
+
+  allocation: {
+    targets: () => request<AllocationTarget[]>("/allocation/targets"),
+    setTargets: (targets: AllocationTarget[]) =>
+      request<AllocationTarget[]>("/allocation/targets", {
+        method: "PUT",
+        body: JSON.stringify({ targets }),
+      }),
+    deviation: () => request<DeviationResult>("/allocation/deviation"),
+  },
+
+  import: {
+    holdings: (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      return fetch(`${API_BASE}/import/holdings`, {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      }).then(async (res) => {
+        if (!res.ok) throw new ApiError(res.status, await res.text());
+        return res.json() as Promise<ImportResult>;
+      });
+    },
+    transactions: (file: File) => {
+      const formData = new FormData();
+      formData.append("file", file);
+      return fetch(`${API_BASE}/import/transactions`, {
+        method: "POST",
+        credentials: "include",
+        body: formData,
+      }).then(async (res) => {
+        if (!res.ok) throw new ApiError(res.status, await res.text());
+        return res.json() as Promise<ImportResult>;
+      });
+    },
+    templateUrl: (type: "holdings" | "transactions") =>
+      `${API_BASE}/import/template/${type}`,
   },
 };
 

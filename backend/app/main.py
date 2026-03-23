@@ -6,12 +6,15 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api.v1.router import api_router
 from app.core.config import settings
 from app.core.redis import close_redis, init_redis
+from app.core.scheduler import start_scheduler, stop_scheduler
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_redis()
+    start_scheduler()
     yield
+    stop_scheduler()
     await close_redis()
 
 
