@@ -18,7 +18,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpq5 && \
     rm -rf /var/lib/apt/lists/*
 
-COPY --from=builder /install /usr/local
+# Trailing slashes: merge install/{bin,lib,...} into /usr/local (not /usr/local/install)
+COPY --from=builder /install/ /usr/local/
 
 COPY backend/ .
 COPY docker/entrypoint-backend.sh /entrypoint.sh
