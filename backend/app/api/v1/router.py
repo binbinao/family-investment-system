@@ -7,6 +7,10 @@ from app.api.v1.dashboard import router as dashboard_router
 from app.api.v1.holdings import router as holdings_router
 from app.api.v1.imports import router as imports_router
 from app.api.v1.market import router as market_router
+from app.api.v1.memos import router as memos_router
+from app.api.v1.operation_logs import router as operation_logs_router
+from app.api.v1.reports import router as reports_router
+from app.api.v1.settings import router as settings_router
 from app.api.v1.snapshots import router as snapshots_router
 from app.api.v1.transactions import router as transactions_router
 
@@ -20,3 +24,7 @@ api_router.include_router(imports_router, prefix="/import", tags=["导入"])
 api_router.include_router(snapshots_router, prefix="/snapshots", tags=["快照"])
 api_router.include_router(allocation_router, prefix="/allocation", tags=["配置"])
 api_router.include_router(ai_router, prefix="/ai", tags=["AI"])
+api_router.include_router(reports_router, prefix="/reports", tags=["晨报"])
+api_router.include_router(memos_router, prefix="/memos", tags=["备忘录"])
+api_router.include_router(operation_logs_router, prefix="/logs", tags=["操作日志"])
+api_router.include_router(settings_router, prefix="/settings", tags=["设置"])

@@ -9,10 +9,13 @@ import type {
   AllocationItem,
   AllocationTarget,
   AIConversation,
+  DailyReportItem,
   DeviationResult,
   ImportResult,
   LoginRequest,
   MarketStatus,
+  MemoItem,
+  OperationLogItem,
   SnapshotPoint,
 } from "@/types";
 
@@ -156,6 +159,47 @@ export const api = {
     },
     templateUrl: (type: "holdings" | "transactions") =>
       `${API_BASE}/import/template/${type}`,
+  },
+
+  reports: {
+    latest: () => request<DailyReportItem>("/reports/latest"),
+    list: (limit = 30) =>
+      request<DailyReportItem[]>(`/reports?limit=${limit}`),
+    generate: () =>
+      request<{ success: boolean; date?: string; summary?: string; message?: string }>(
+        "/reports/generate",
+        { method: "POST" },
+      ),
+  },
+
+  memos: {
+    list: (symbol?: string, limit = 50) => {
+      const params = new URLSearchParams();
+      if (symbol) params.set("symbol", symbol);
+      params.set("limit", String(limit));
+      return request<MemoItem[]>(`/memos?${params}`);
+    },
+    create: (content: string) =>
+      request<MemoItem>("/memos", {
+        method: "POST",
+        body: JSON.stringify({ content }),
+      }),
+    delete: (id: string) =>
+      request<void>(`/memos/${id}`, { method: "DELETE" }),
+  },
+
+  logs: {
+    list: (limit = 100) =>
+      request<OperationLogItem[]>(`/logs?limit=${limit}`),
+  },
+
+  settings: {
+    get: () => request<Record<string, string>>("/settings"),
+    update: (settings: { key: string; value: string }[]) =>
+      request<{ success: boolean }>("/settings", {
+        method: "PUT",
+        body: JSON.stringify({ settings }),
+      }),
   },
 };
 

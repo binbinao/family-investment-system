@@ -7,7 +7,9 @@ from apscheduler.triggers.cron import CronTrigger
 
 from app.core.database import async_session
 from app.services.ai import cleanup_old_conversations
+from app.services.daily_report import generate_daily_report
 from app.services.market import refresh_all_prices
+from app.services.notification import push_daily_report
 from app.services.snapshot import create_daily_snapshot
 
 logger = logging.getLogger(__name__)
@@ -38,6 +40,16 @@ async def _create_snapshot():
         snapshot = await create_daily_snapshot(db)
         if snapshot:
             logger.info(f"Snapshot created: {snapshot.date}")
+
+
+async def _generate_morning_report():
+    """Scheduled task: generate daily AI morning report."""
+    logger.info("Scheduled: generating daily report")
+    async with async_session() as db:
+        report = await generate_daily_report(db)
+        if report:
+            await push_daily_report(db, report.summary, report.content_markdown)
+            logger.info(f"Daily report generated and pushed: {report.date}")
 
 
 async def _cleanup_conversations():
@@ -86,6 +98,14 @@ def start_scheduler():
         replace_existing=True,
     )
 
+    # Daily morning report at 08:00
+    scheduler.add_job(
+        _generate_morning_report,
+        CronTrigger(hour=8, minute=0),
+        id="morning_report",
+        replace_existing=True,
+    )
+
     # Clean up old AI conversations daily at 03:00
     scheduler.add_job(
         _cleanup_conversations,
@@ -95,7 +115,7 @@ def start_scheduler():
     )
 
     scheduler.start()
-    logger.info("Scheduler started with 5 jobs")
+    logger.info("Scheduler started with 6 jobs")
 
 
 def stop_scheduler():

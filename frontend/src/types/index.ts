@@ -144,3 +144,28 @@ export interface ChatMessage {
   progress?: string;
   isStreaming?: boolean;
 }
+
+export interface DailyReportItem {
+  id?: string;
+  date: string;
+  summary: string;
+  content_markdown: string;
+  created_at?: string;
+  has_report?: boolean;
+}
+
+export interface MemoItem {
+  id: string;
+  content: string;
+  related_symbols: string | null;
+  user_id: string;
+  created_at: string;
+}
+
+export interface OperationLogItem {
+  id: string;
+  user_id: string;
+  action: string;
+  detail: string;
+  created_at: string;
+}
