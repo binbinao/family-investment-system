@@ -28,7 +28,7 @@ services:
       - DATABASE_URL=postgresql+asyncpg://postgres:${POSTGRES_PASSWORD:-changeme}@db:5432/${POSTGRES_DB:-family_invest}
       - REDIS_URL=redis://redis:6379/0
       - SECRET_KEY=${SECRET_KEY:-change-me-in-production}
-      - CORS_ORIGINS=["http://localhost","http://localhost:80","http://localhost:3000","http://localhost:8080"]
+      - CORS_ORIGINS=["http://localhost","http://localhost:80","http://localhost:3000","http://localhost:8080","http://localhost:8888"]
       - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
       - DEEPSEEK_BASE_URL=${DEEPSEEK_BASE_URL:-https://api.deepseek.com}
       - DEEPSEEK_MODEL=${DEEPSEEK_MODEL:-deepseek-chat}
