@@ -59,6 +59,10 @@ export function ExcelImport({ type, onSuccess }: ExcelImportProps) {
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        <p className="text-sm text-muted-foreground">
+          模板含「填写说明」工作表：按股票 / 基金 / 债券 / 现金等含义填列；现金持仓「单位成本」可留空（按
+          1 处理）。首行须为表头，勿删列名。
+        </p>
         <div className="flex items-center gap-3">
           <a
             href={api.import.templateUrl(type)}

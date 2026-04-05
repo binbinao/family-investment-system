@@ -6,17 +6,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { api } from "@/lib/api";
+import {
+  holdingFormCopy,
+  holdingPanelDescription,
+} from "@/lib/asset-type-meta";
+import { AssetTypeToggle } from "@/components/trade/asset-type-toggle";
 import type { AssetType } from "@/types";
-
-const ASSET_TYPES: AssetType[] = ["股票", "基金", "债券", "现金", "其他"];
 
 export function AddHoldingForm({ onSuccess }: { onSuccess: () => void }) {
   const [symbol, setSymbol] = useState("");
@@ -28,17 +24,27 @@ export function AddHoldingForm({ onSuccess }: { onSuccess: () => void }) {
   const [account, setAccount] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const copy = holdingFormCopy(assetType);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     try {
+      const q = parseFloat(quantity);
+      const isCash = copy.isCashSemantics;
+      const cost = isCash ? 1 : parseFloat(costPrice);
+      const latest = isCash
+        ? 1
+        : latestPrice
+          ? parseFloat(latestPrice)
+          : undefined;
       await api.holdings.create({
         symbol,
         name,
         asset_type: assetType,
-        quantity: parseFloat(quantity),
-        cost_price: parseFloat(costPrice),
-        latest_price: latestPrice ? parseFloat(latestPrice) : undefined,
+        quantity: q,
+        cost_price: cost,
+        latest_price: latest,
         account: account || undefined,
       });
       toast.success(`已添加「${name}」`);
@@ -58,103 +64,124 @@ export function AddHoldingForm({ onSuccess }: { onSuccess: () => void }) {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="pb-3">
         <CardTitle className="text-base">添加持仓</CardTitle>
+        <p className="text-sm text-muted-foreground">
+          先选择资产类型，再填写下方对应字段。
+        </p>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="symbol">标的代码</Label>
-              <Input
-                id="symbol"
-                value={symbol}
-                onChange={(e) => setSymbol(e.target.value)}
-                placeholder="如 600519"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="name">标的名称</Label>
-              <Input
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="如 贵州茅台"
-                required
-              />
-            </div>
-          </div>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <AssetTypeToggle value={assetType} onChange={setAssetType} />
 
-          <div className="grid grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <Label>资产类型</Label>
-              <Select
-                value={assetType}
-                onValueChange={(v) => setAssetType(v as AssetType)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {ASSET_TYPES.map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+          <div
+            key={assetType}
+            className="space-y-4 rounded-xl border border-border/80 bg-muted/15 p-4 ring-1 ring-foreground/5"
+          >
+            <div>
+              <p className="text-xs font-medium text-muted-foreground">
+                扩展信息 · {assetType}
+              </p>
+              <p className="mt-1 text-sm text-muted-foreground">
+                {holdingPanelDescription(assetType)}
+              </p>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="quantity">数量</Label>
-              <Input
-                id="quantity"
-                type="number"
-                step="0.0001"
-                min="0"
-                value={quantity}
-                onChange={(e) => setQuantity(e.target.value)}
-                placeholder="持有数量"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="costPrice">成本价</Label>
-              <Input
-                id="costPrice"
-                type="number"
-                step="0.0001"
-                min="0"
-                value={costPrice}
-                onChange={(e) => setCostPrice(e.target.value)}
-                placeholder="每股/每份成本"
-                required
-              />
-            </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="latestPrice">最新价格（可选）</Label>
-              <Input
-                id="latestPrice"
-                type="number"
-                step="0.0001"
-                min="0"
-                value={latestPrice}
-                onChange={(e) => setLatestPrice(e.target.value)}
-                placeholder="当前市价"
-              />
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="symbol">{copy.symbolLabel}</Label>
+                <Input
+                  id="symbol"
+                  value={symbol}
+                  onChange={(e) => setSymbol(e.target.value)}
+                  placeholder={copy.symbolPlaceholder}
+                  required
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="name">{copy.nameLabel}</Label>
+                <Input
+                  id="name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder={copy.namePlaceholder}
+                  required
+                />
+              </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="account">账户（可选）</Label>
-              <Input
-                id="account"
-                value={account}
-                onChange={(e) => setAccount(e.target.value)}
-                placeholder="如：张三-华泰"
-              />
+
+            <div
+              className={
+                copy.showCostAndLatest
+                  ? "grid gap-4 sm:grid-cols-3"
+                  : "grid gap-4 sm:grid-cols-2"
+              }
+            >
+              <div className="space-y-2 sm:col-span-1">
+                <Label htmlFor="quantity">{copy.quantityLabel}</Label>
+                <Input
+                  id="quantity"
+                  type="number"
+                  step="0.0001"
+                  min="0"
+                  value={quantity}
+                  onChange={(e) => setQuantity(e.target.value)}
+                  placeholder={copy.quantityPlaceholder}
+                  required
+                />
+              </div>
+              {copy.showCostAndLatest ? (
+                <div className="space-y-2">
+                  <Label htmlFor="costPrice">{copy.costPriceLabel}</Label>
+                  <Input
+                    id="costPrice"
+                    type="number"
+                    step="0.0001"
+                    min="0"
+                    value={costPrice}
+                    onChange={(e) => setCostPrice(e.target.value)}
+                    placeholder={copy.costPlaceholder}
+                    required
+                  />
+                </div>
+              ) : null}
             </div>
+
+            {copy.showCostAndLatest ? (
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="latestPrice">{copy.latestPriceLabel}</Label>
+                  <Input
+                    id="latestPrice"
+                    type="number"
+                    step="0.0001"
+                    min="0"
+                    value={latestPrice}
+                    onChange={(e) => setLatestPrice(e.target.value)}
+                    placeholder={copy.latestPlaceholder}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="account">账户（可选）</Label>
+                  <Input
+                    id="account"
+                    value={account}
+                    onChange={(e) => setAccount(e.target.value)}
+                    placeholder="如：张三-华泰"
+                  />
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <Label htmlFor="account-cash">账户（可选）</Label>
+                <Input
+                  id="account-cash"
+                  value={account}
+                  onChange={(e) => setAccount(e.target.value)}
+                  placeholder="如：张三-工行活期"
+                />
+              </div>
+            )}
           </div>
 
           <Button type="submit" disabled={loading}>

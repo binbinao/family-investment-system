@@ -29,12 +29,12 @@ export default function TradePage() {
       <div>
         <h1 className="text-2xl font-semibold tracking-tight">记账</h1>
         <p className="text-sm text-muted-foreground">
-          添加新持仓或记录交易，支持 Excel 批量导入
+          先选资产类型再填扩展项；可在此添加持仓、补录交易或 Excel 批量导入。
         </p>
       </div>
 
       <Tabs defaultValue="holding" className="w-full">
-        <TabsList>
+        <TabsList className="h-auto flex-wrap gap-1 py-1">
           <TabsTrigger value="holding">添加持仓</TabsTrigger>
           <TabsTrigger value="transaction">记录交易</TabsTrigger>
           <TabsTrigger value="import">Excel 导入</TabsTrigger>

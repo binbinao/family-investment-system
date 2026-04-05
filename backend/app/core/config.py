@@ -1,4 +1,19 @@
-from pydantic_settings import BaseSettings
+from pathlib import Path
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+_BACKEND_DIR = Path(__file__).resolve().parent.parent.parent
+_REPO_ROOT = _BACKEND_DIR.parent
+
+
+def _normalize_openai_sdk_base_url(url: str) -> str:
+    """OpenAI SDK posts to ``{base_url}/chat/completions``; base_url must end with ``/v1``."""
+    url = url.strip().rstrip("/")
+    if not url:
+        return url
+    if url.lower().endswith("/v1"):
+        return url
+    return f"{url}/v1"
 
 
 class Settings(BaseSettings):
@@ -21,8 +36,14 @@ class Settings(BaseSettings):
     AI_DAILY_LIMIT: int = 100
     AI_DEEP_MAX_TOKENS: int = 30000
 
-    class Config:
-        env_file = ".env"
+    model_config = SettingsConfigDict(
+        env_file=(
+            str(_REPO_ROOT / ".env"),
+            str(_BACKEND_DIR / ".env"),
+        ),
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
 
     def resolved_llm_api_key(self) -> str:
         key = (self.DEEPSEEK_VENDOR_API_KEY or self.DEEPSEEK_API_KEY).strip()
@@ -30,7 +51,7 @@ class Settings(BaseSettings):
 
     def resolved_llm_base_url(self) -> str:
         url = (self.DEEPSEEK_VENDOR_BASE_URL or self.DEEPSEEK_BASE_URL).strip()
-        return url.rstrip("/")
+        return _normalize_openai_sdk_base_url(url)
 
     def resolved_llm_model(self) -> str:
         model = (self.DEEPSEEK_VENDOR_MODEL or self.DEEPSEEK_MODEL).strip()
