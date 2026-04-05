@@ -22,8 +22,8 @@ DISCLAIMER = "\n\n---\n*以上内容仅供参考，不构成投资建议。*"
 
 def _get_client() -> AsyncOpenAI:
     return AsyncOpenAI(
-        api_key=settings.DEEPSEEK_API_KEY,
-        base_url=settings.DEEPSEEK_BASE_URL,
+        api_key=settings.resolved_llm_api_key(),
+        base_url=settings.resolved_llm_base_url(),
     )
 
 
@@ -158,8 +158,12 @@ async def quick_chat_stream(
     question: str,
 ) -> AsyncGenerator[str, None]:
     """Quick chat with streaming response."""
-    if not settings.DEEPSEEK_API_KEY:
-        yield "data: " + json.dumps({"error": "AI 服务未配置，请设置 DEEPSEEK_API_KEY"}) + "\n\n"
+    if not settings.resolved_llm_api_key():
+        yield "data: " + json.dumps(
+            {
+                "error": "AI 服务未配置，请设置 DEEPSEEK_API_KEY 或第三方 DEEPSEEK_VENDOR_API_KEY",
+            }
+        ) + "\n\n"
         return
 
     if not await check_daily_limit(db, user_id):
@@ -174,7 +178,7 @@ async def quick_chat_stream(
 
     try:
         stream = await client.chat.completions.create(
-            model=settings.DEEPSEEK_MODEL,
+            model=settings.resolved_llm_model(),
             messages=[
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": question},
@@ -214,8 +218,12 @@ async def deep_analysis_stream(
     question: str,
 ) -> AsyncGenerator[str, None]:
     """Deep analysis with multi-perspective approach and progress updates."""
-    if not settings.DEEPSEEK_API_KEY:
-        yield "data: " + json.dumps({"error": "AI 服务未配置，请设置 DEEPSEEK_API_KEY"}) + "\n\n"
+    if not settings.resolved_llm_api_key():
+        yield "data: " + json.dumps(
+            {
+                "error": "AI 服务未配置，请设置 DEEPSEEK_API_KEY 或第三方 DEEPSEEK_VENDOR_API_KEY",
+            }
+        ) + "\n\n"
         return
 
     if not await check_daily_limit(db, user_id):
@@ -243,7 +251,7 @@ async def deep_analysis_stream(
 
         try:
             response = await client.chat.completions.create(
-                model=settings.DEEPSEEK_MODEL,
+                model=settings.resolved_llm_model(),
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=settings.AI_DEEP_MAX_TOKENS // 4,
             )
@@ -265,7 +273,7 @@ async def deep_analysis_stream(
     full_answer = ""
     try:
         stream = await client.chat.completions.create(
-            model=settings.DEEPSEEK_MODEL,
+            model=settings.resolved_llm_model(),
             messages=[{"role": "user", "content": summary_prompt}],
             stream=True,
             max_tokens=settings.AI_DEEP_MAX_TOKENS // 4,

@@ -66,8 +66,8 @@ async def generate_daily_report(db: AsyncSession) -> DailyReport | None:
         logger.info(f"Report for {today} already exists")
         return None
 
-    if not settings.DEEPSEEK_API_KEY:
-        logger.warning("DEEPSEEK_API_KEY not set, skipping report generation")
+    if not settings.resolved_llm_api_key():
+        logger.warning("LLM API key not set, skipping report generation")
         return None
 
     portfolio_context = await _build_portfolio_context(db)
@@ -80,13 +80,13 @@ async def generate_daily_report(db: AsyncSession) -> DailyReport | None:
     )
 
     client = AsyncOpenAI(
-        api_key=settings.DEEPSEEK_API_KEY,
-        base_url=settings.DEEPSEEK_BASE_URL,
+        api_key=settings.resolved_llm_api_key(),
+        base_url=settings.resolved_llm_base_url(),
     )
 
     try:
         response = await client.chat.completions.create(
-            model=settings.DEEPSEEK_MODEL,
+            model=settings.resolved_llm_model(),
             messages=[{"role": "user", "content": prompt}],
             max_tokens=2000,
         )
