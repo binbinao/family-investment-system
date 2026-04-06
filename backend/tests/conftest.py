@@ -29,6 +29,16 @@ def event_loop():
 
 
 @pytest_asyncio.fixture(autouse=True)
+async def ensure_redis():
+    """httpx ASGITransport 不触发 FastAPI lifespan，需手动初始化 Redis（Session 等依赖）。"""
+    from app.core import redis as redis_mod
+
+    if redis_mod.redis_client is None:
+        await redis_mod.init_redis()
+    yield
+
+
+@pytest_asyncio.fixture(autouse=True)
 async def setup_database():
     async with test_engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

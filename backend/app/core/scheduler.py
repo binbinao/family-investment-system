@@ -16,6 +16,16 @@ logger = logging.getLogger(__name__)
 
 scheduler = AsyncIOScheduler()
 
+# A 股交易时段（工作日）：9:30–11:30、13:00–15:00，每 5 分钟一次
+_CN_EQUITY_REFRESH_TRIGGER_KW: list[dict] = [
+    {"day_of_week": "mon-fri", "hour": 9, "minute": "30-55/5"},
+    {"day_of_week": "mon-fri", "hour": 10, "minute": "*/5"},
+    {"day_of_week": "mon-fri", "hour": 11, "minute": "0-30/5"},
+    {"day_of_week": "mon-fri", "hour": 13, "minute": "*/5"},
+    {"day_of_week": "mon-fri", "hour": 14, "minute": "*/5"},
+    {"day_of_week": "mon-fri", "hour": 15, "minute": 0},
+]
+
 
 async def _refresh_stock_prices():
     """Scheduled task: refresh stock prices during trading hours."""
@@ -60,27 +70,19 @@ async def _cleanup_conversations():
         logger.info(f"Cleaned up {deleted} old conversations")
 
 
+def _register_cn_equity_refresh_jobs() -> None:
+    for i, kw in enumerate(_CN_EQUITY_REFRESH_TRIGGER_KW):
+        scheduler.add_job(
+            _refresh_stock_prices,
+            CronTrigger(**kw),
+            id=f"refresh_stock_prices_{i}",
+            replace_existing=True,
+        )
+
+
 def start_scheduler():
     """Start all scheduled tasks."""
-    # Stock prices: every 5 minutes during trading hours (weekdays)
-    scheduler.add_job(
-        _refresh_stock_prices,
-        CronTrigger(
-            day_of_week="mon-fri",
-            hour="9-11,13-14",
-            minute="*/5",
-        ),
-        id="refresh_stock_prices",
-        replace_existing=True,
-    )
-
-    # Additional run at 9:30 and 15:00
-    scheduler.add_job(
-        _refresh_stock_prices,
-        CronTrigger(day_of_week="mon-fri", hour=9, minute=30),
-        id="refresh_stock_open",
-        replace_existing=True,
-    )
+    _register_cn_equity_refresh_jobs()
 
     # Fund NAV: daily at 20:00
     scheduler.add_job(
@@ -115,7 +117,8 @@ def start_scheduler():
     )
 
     scheduler.start()
-    logger.info("Scheduler started with 6 jobs")
+    n_jobs = len(scheduler.get_jobs())
+    logger.info("Scheduler started with %s jobs", n_jobs)
 
 
 def stop_scheduler():

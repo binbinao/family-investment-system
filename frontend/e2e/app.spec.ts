@@ -5,6 +5,9 @@ async function loginAsAdmin(page: import("@playwright/test").Page) {
   await page.locator("#username").fill("admin");
   await page.locator("#password").fill("admin123");
   await page.getByRole("button", { name: "登录" }).click();
+  await page.waitForURL((u) => u.pathname === "/" || u.pathname === "", {
+    timeout: 30_000,
+  });
   await expect(page.getByRole("heading", { name: "家庭资产总览" })).toBeVisible({
     timeout: 25_000,
   });
@@ -59,5 +62,19 @@ test.describe("齐家 · 全功能端到端", () => {
     await page.locator('header a[href="/ai"]').click();
     await expect(page).toHaveURL(/\/ai$/);
     await expect(page.locator("h1")).toContainText(/财务顾问|AI/);
+  });
+
+  test("Phase2：总览资产走势与行情刷新；记账 Excel 导入 Tab", async ({ page }) => {
+    await loginAsAdmin(page);
+    await expect(page.getByText("资产走势")).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole("button", { name: "刷新行情" })).toBeVisible();
+
+    await page.goto("/trade");
+    await expect(page.getByRole("heading", { name: "记账" })).toBeVisible();
+    await page.getByRole("tab", { name: "Excel 导入" }).click();
+    await expect(page.getByRole("button", { name: "下载持仓模板" })).toBeVisible({
+      timeout: 10_000,
+    });
+    await expect(page.getByRole("button", { name: "下载交易模板" })).toBeVisible();
   });
 });
