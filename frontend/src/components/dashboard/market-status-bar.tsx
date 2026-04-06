@@ -8,7 +8,12 @@ import { formatDateTime } from "@/lib/format";
 import type { MarketStatus } from "@/types";
 import { toast } from "sonner";
 
-export function MarketStatusBar() {
+export function MarketStatusBar({
+  onRefreshComplete,
+}: {
+  /** 行情写入后端成功后刷新总览/持仓等数据 */
+  onRefreshComplete?: () => void;
+}) {
   const [statuses, setStatuses] = useState<MarketStatus[]>([]);
   const [refreshing, setRefreshing] = useState(false);
 
@@ -28,6 +33,7 @@ export function MarketStatusBar() {
         `行情刷新完成：成功 ${result.success}，失败 ${result.failed}，跳过 ${result.skipped}`,
       );
       fetchStatus();
+      onRefreshComplete?.();
     } catch {
       toast.error("行情刷新失败");
     } finally {

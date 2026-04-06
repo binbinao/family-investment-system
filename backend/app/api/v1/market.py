@@ -14,7 +14,7 @@ async def refresh_prices(
     db: AsyncSession = Depends(get_db),
     user: User = Depends(get_current_user),
 ):
-    result = await refresh_all_prices(db)
+    result = await refresh_all_prices(db, force=True)
     return result
 
 

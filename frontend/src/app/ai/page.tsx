@@ -165,7 +165,7 @@ export default function AIPage() {
           const updated = [...prev];
           const last = updated[updated.length - 1];
           if (last.role === "assistant") {
-            last.content = "AI 服务暂时不可用，请稍后再试";
+            last.content = "AI 财务顾问暂时不可用，请稍后再试";
             last.isStreaming = false;
           }
           return updated;
@@ -205,9 +205,9 @@ export default function AIPage() {
     <div className="flex h-[calc(100vh-5rem)] flex-col">
       <div className="flex items-center justify-between border-b px-1 pb-3">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">AI 对话</h1>
+          <h1 className="text-2xl font-semibold tracking-tight">AI 财务顾问</h1>
           <p className="text-sm text-muted-foreground">
-            跟 AI 聊投资，快问秒回，深聊多角度分析
+            咨询家庭投资问题：快问秒回，深聊多角度分析
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -275,7 +275,9 @@ export default function AIPage() {
           {messages.length === 0 ? (
             <div className="flex h-full flex-col items-center justify-center text-center">
               <div className="mb-4 text-4xl">🤖</div>
-              <h2 className="text-lg font-medium">你好，有什么投资问题想聊聊？</h2>
+              <h2 className="text-lg font-medium">
+                你好，我是你的 AI 财务顾问，有什么想聊聊？
+              </h2>
               <p className="mt-1 text-sm text-muted-foreground">
                 {mode === "quick"
                   ? "快问模式：即时回复，适合日常小问题"
@@ -375,8 +377,8 @@ export default function AIPage() {
           )}
         </div>
         <p className="mt-1 text-center text-xs text-muted-foreground">
-          当前模式：{mode === "quick" ? "⚡ 快问" : "🧠 深聊"} · AI
-          回复仅供参考，不构成投资建议
+          当前模式：{mode === "quick" ? "⚡ 快问" : "🧠 深聊"} ·
+          AI 财务顾问回复仅供参考，不构成投资建议
         </p>
       </div>
     </div>

@@ -5,7 +5,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "齐家 · 家庭投资助手",
-  description: "给三口之家用的投资记账本 + AI 分析助手",
+  description: "给三口之家用的投资记账本 + AI 财务顾问",
 };
 
 export default function RootLayout({

@@ -17,6 +17,7 @@ import type {
   MemoItem,
   OperationLogItem,
   SnapshotPoint,
+  SnapshotChartPoint,
 } from "@/types";
 
 const API_BASE =
@@ -107,6 +108,8 @@ export const api = {
   },
 
   snapshots: {
+    /** 近 30 日合并快照 + 按当前持仓模拟的缺失日 */
+    chart30d: () => request<SnapshotChartPoint[]>("/snapshots/chart"),
     list: (startDate?: string, endDate?: string) => {
       const params = new URLSearchParams();
       if (startDate) params.set("start_date", startDate);

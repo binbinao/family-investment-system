@@ -91,6 +91,11 @@ export interface SnapshotPoint {
   total_profit_loss: number;
 }
 
+/** GET /snapshots/chart：可能含 estimated 缺失日模拟点 */
+export interface SnapshotChartPoint extends SnapshotPoint {
+  estimated?: boolean;
+}
+
 export interface AllocationTarget {
   asset_type: string;
   target_ratio: number;

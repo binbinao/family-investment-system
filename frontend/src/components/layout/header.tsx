@@ -11,7 +11,7 @@ import type { User } from "@/types";
 const NAV_ITEMS = [
   { href: "/", label: "总览" },
   { href: "/trade", label: "记账" },
-  { href: "/ai", label: "AI" },
+  { href: "/ai", label: "AI财务顾问" },
   { href: "/reports", label: "晨报" },
   { href: "/memos", label: "备忘" },
   { href: "/settings", label: "设置" },

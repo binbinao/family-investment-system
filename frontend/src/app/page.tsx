@@ -56,7 +56,7 @@ export default function HomePage() {
             一眼看清家里的投资状况
           </p>
         </div>
-        <MarketStatusBar />
+        <MarketStatusBar onRefreshComplete={fetchData} />
       </div>
 
       <DeviationAlert />
