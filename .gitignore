@@ -16,6 +16,9 @@ out/
 
 # IDE
 .idea/
+.cursor/
+.agents/
+.cursor/skills/superpowers/
 *.swp
 *.swo
 *~
