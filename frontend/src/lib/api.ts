@@ -20,6 +20,8 @@ import type {
   SectorAllocation,
   SnapshotPoint,
   SnapshotChartPoint,
+  CorrelationMatrixData,
+  RebalanceResult,
 } from "@/types";
 
 const API_BASE =
@@ -100,6 +102,9 @@ export const api = {
     allocation: () => request<AllocationItem[]>("/dashboard/allocation"),
     riskMetrics: () => request<RiskMetrics | null>("/dashboard/risk-metrics"),
     sectorAllocation: () => request<SectorAllocation[]>("/dashboard/sector-allocation"),
+    correlationMatrix: () => request<CorrelationMatrixData | null>("/dashboard/correlation-matrix"),
+    rebalance: (deviationThreshold = 10) =>
+      request<RebalanceResult>(`/dashboard/rebalance?deviation_threshold=${deviationThreshold}`),
   },
 
   market: {

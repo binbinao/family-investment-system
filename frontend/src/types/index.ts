@@ -119,6 +119,71 @@ export interface SectorAllocation {
   holdings_count: number;
 }
 
+// ---------------------------------------------------------------------------
+// Correlation Matrix (#3)
+// ---------------------------------------------------------------------------
+
+export interface CorrelationPair {
+  symbol_a: string;
+  name_a: string;
+  symbol_b: string;
+  name_b: string;
+  correlation: number;
+  is_alert: boolean;
+}
+
+export interface DiversificationScore {
+  score: number;
+  label: string;
+  avg_correlation: number;
+}
+
+export interface RiskContribution {
+  symbol: string;
+  name: string;
+  weight: number;
+  risk_contribution: number;
+}
+
+export interface CorrelationMatrixData {
+  symbols: string[];
+  symbol_names: string[];
+  matrix: number[][];
+  pairs: CorrelationPair[];
+  diversification_score: DiversificationScore;
+  risk_contributions: RiskContribution[];
+  period_days: number;
+}
+
+// ---------------------------------------------------------------------------
+// Tax-Aware Rebalance (#1)
+// ---------------------------------------------------------------------------
+
+export interface TradeCostDetail {
+  stamp_tax: number;
+  commission: number;
+  redemption_fee: number;
+  dividend_tax: number;
+  total_cost: number;
+}
+
+export interface RebalanceSuggestion {
+  asset_type: string;
+  action: string;
+  adjust_amount: number;
+  cost_detail: TradeCostDetail;
+  net_benefit: number;
+  is_recommended: boolean;
+}
+
+export interface RebalanceResult {
+  has_targets: boolean;
+  deviation_threshold: number;
+  suggestions: RebalanceSuggestion[];
+  total_cost: number;
+  total_net_benefit: number;
+}
+
 export interface AllocationTarget {
   asset_type: string;
   target_ratio: number;

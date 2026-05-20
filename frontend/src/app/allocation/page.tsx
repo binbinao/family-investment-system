@@ -9,6 +9,7 @@ import { api } from "@/lib/api";
 import { toast } from "sonner";
 import type { AllocationTarget, DeviationResult } from "@/types";
 import { formatCurrency } from "@/lib/format";
+import { RebalanceCard } from "@/components/dashboard/rebalance-card";
 
 const ASSET_TYPES = ["股票", "基金", "债券", "现金", "其他"];
 
@@ -152,6 +153,9 @@ export default function AllocationPage() {
           </Card>
         )}
       </div>
+
+      {/* Tax-aware rebalance card */}
+      <RebalanceCard />
     </div>
   );
 }

@@ -10,6 +10,7 @@ import { DeviationAlert } from "@/components/dashboard/deviation-alert";
 import { MarketStatusBar } from "@/components/dashboard/market-status-bar";
 import { RiskMetricsCard } from "@/components/dashboard/risk-metrics-card";
 import { SectorAllocationCard } from "@/components/dashboard/sector-allocation-card";
+import { CorrelationMatrixCard } from "@/components/dashboard/correlation-matrix-card";
 import { ErrorBoundary } from "@/components/ui/error-boundary";
 import type { AllocationItem, DashboardSummary, Holding } from "@/types";
 
@@ -87,6 +88,9 @@ export default function HomePage() {
           </ErrorBoundary>
           <ErrorBoundary>
             <SectorAllocationCard />
+          </ErrorBoundary>
+          <ErrorBoundary>
+            <CorrelationMatrixCard />
           </ErrorBoundary>
         </div>
         <div className="lg:col-span-2">

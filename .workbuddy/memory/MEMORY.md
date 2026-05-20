@@ -4,8 +4,8 @@
 - **定位**：三口之家投资记账本 + AI 分析助手
 - **仓库**：`/Users/duobinji/Documents/GitHub/family-investment-system`
 - **分支**：仅 `main`，单线开发
-- **最新版本**：v1.1（Phase 2 tests, A-share scheduler, Docker, Superpowers）
-- **状态**：4个Phase全部开发完成，功能完整的MVP
+- **最新版本**：v1.1+（新增风险指标、行业分析、CI/CD）
+- **状态**：4个Phase完成 + P0风险量化实现 + CI/CD流水线
 
 ## 技术栈
 | 层 | 技术 | 版本 |
@@ -70,3 +70,26 @@
 - 端口通过 `NGINX_HOST_PORT` 控制（默认80，当前配置8888）
 - 入口脚本自动执行：alembic迁移 → 初始化用户 → 启动uvicorn
 - 备份脚本：`scripts/backup.sh`（PostgreSQL日备+30天清理）
+
+## CI/CD
+- `.github/workflows/ci.yml`：push/PR自动触发
+- 6个job：Backend Lint → Backend Tests | Frontend Lint+TSC → Frontend Tests + Build | Docker Build
+- 后端：ruff --exit-zero + pytest (PostgreSQL+Redis services)
+- 前端：tsc --noEmit + eslint(非阻塞) + vitest + next build
+- vitest 单元测试：4文件13用例（api-cache/error-boundary/risk-metrics/sector-allocation）
+- 后端测试：test_dashboard_risk_sector.py（风险指标+行业分配）
+
+## 已实现的Issue增强
+- #13: Holding模型 sector/purchase_date/cost_method 字段
+- #14: Snapshot模型 daily_return 字段（自动计算日收益率）
+- #2: 风险指标计算（最大回撤/夏普/波动率/VaR）+ 前端RiskMetricsCard
+- #4: 行业集中度分析 + 前端SectorAllocationCard（>30%预警）
+- #12: ErrorBoundary + API缓存工具
+
+## 待实现Issues
+- #3 P0: 持仓相关性矩阵
+- #1 P0: 税后最优再平衡
+- #5 P1: 税务计算支持
+- #6 P1: AI分析深度提升
+- #7 P1: 高级可视化
+- #8-#11 P2: 多模型AI/移动端/海外市场/自动交易
