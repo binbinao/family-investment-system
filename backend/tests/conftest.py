@@ -1,7 +1,6 @@
 import asyncio
 import uuid
 from collections.abc import AsyncGenerator
-from decimal import Decimal
 
 import pytest
 import pytest_asyncio
