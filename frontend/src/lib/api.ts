@@ -16,6 +16,8 @@ import type {
   MarketStatus,
   MemoItem,
   OperationLogItem,
+  RiskMetrics,
+  SectorAllocation,
   SnapshotPoint,
   SnapshotChartPoint,
 } from "@/types";
@@ -96,6 +98,8 @@ export const api = {
   dashboard: {
     summary: () => request<DashboardSummary>("/dashboard/summary"),
     allocation: () => request<AllocationItem[]>("/dashboard/allocation"),
+    riskMetrics: () => request<RiskMetrics | null>("/dashboard/risk-metrics"),
+    sectorAllocation: () => request<SectorAllocation[]>("/dashboard/sector-allocation"),
   },
 
   market: {

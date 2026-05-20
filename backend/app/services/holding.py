@@ -28,10 +28,13 @@ def _enrich_holding(h: Holding) -> HoldingResponse:
         symbol=h.symbol,
         name=h.name,
         asset_type=h.asset_type,
+        sector=h.sector,
         quantity=h.quantity,
         cost_price=h.cost_price,
         latest_price=h.latest_price,
         latest_price_updated_at=h.latest_price_updated_at,
+        purchase_date=h.purchase_date,
+        cost_method=h.cost_method or "fifo",
         account=h.account,
         market_value=market_value,
         total_cost=total_cost,
@@ -60,10 +63,13 @@ async def create_holding(
         symbol=data.symbol,
         name=data.name,
         asset_type=data.asset_type,
+        sector=data.sector,
         quantity=data.quantity,
         cost_price=data.cost_price,
         latest_price=data.latest_price,
         latest_price_updated_at=datetime.utcnow() if data.latest_price else None,
+        purchase_date=data.purchase_date,
+        cost_method=data.cost_method,
         account=data.account,
     )
     db.add(holding)
@@ -106,6 +112,9 @@ async def update_holding(
     if data.account is not None:
         holding.account = data.account
         changes["account"] = data.account
+    if data.sector is not None:
+        holding.sector = data.sector
+        changes["sector"] = data.sector
 
     holding.updated_at = datetime.utcnow()
 

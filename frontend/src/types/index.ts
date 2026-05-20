@@ -9,10 +9,13 @@ export interface Holding {
   symbol: string;
   name: string;
   asset_type: AssetType;
+  sector: string | null;
   quantity: number;
   cost_price: number;
   latest_price: number | null;
   latest_price_updated_at: string | null;
+  purchase_date: string | null;
+  cost_method: "fifo" | "average";
   account: string | null;
   market_value: number | null;
   profit_loss: number | null;
@@ -57,9 +60,12 @@ export interface HoldingCreate {
   symbol: string;
   name: string;
   asset_type: AssetType;
+  sector?: string;
   quantity: number;
   cost_price: number;
   latest_price?: number;
+  purchase_date?: string;
+  cost_method?: "fifo" | "average";
   account?: string;
 }
 
@@ -67,6 +73,7 @@ export interface HoldingUpdate {
   name?: string;
   quantity?: number;
   cost_price?: number;
+  sector?: string;
   account?: string;
 }
 
@@ -94,6 +101,22 @@ export interface SnapshotPoint {
 /** GET /snapshots/chart：可能含 estimated 缺失日模拟点 */
 export interface SnapshotChartPoint extends SnapshotPoint {
   estimated?: boolean;
+  daily_return?: number | null;
+}
+
+export interface RiskMetrics {
+  max_drawdown: number;       // 最大回撤 (%)
+  annualized_volatility: number; // 年化波动率 (%)
+  sharpe_ratio: number;        // 夏普比率
+  var_95: number;              // VaR 95% (%)
+  period_days: number;         // 计算周期(天)
+}
+
+export interface SectorAllocation {
+  sector: string;
+  market_value: number;
+  percentage: number;
+  holdings_count: number;
 }
 
 export interface AllocationTarget {

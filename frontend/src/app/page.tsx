@@ -8,6 +8,9 @@ import { HoldingsTable } from "@/components/dashboard/holdings-table";
 import { NetValueChart } from "@/components/dashboard/net-value-chart";
 import { DeviationAlert } from "@/components/dashboard/deviation-alert";
 import { MarketStatusBar } from "@/components/dashboard/market-status-bar";
+import { RiskMetricsCard } from "@/components/dashboard/risk-metrics-card";
+import { SectorAllocationCard } from "@/components/dashboard/sector-allocation-card";
+import { ErrorBoundary } from "@/components/ui/error-boundary";
 import type { AllocationItem, DashboardSummary, Holding } from "@/types";
 
 export default function HomePage() {
@@ -59,20 +62,39 @@ export default function HomePage() {
         <MarketStatusBar onRefreshComplete={fetchData} />
       </div>
 
-      <DeviationAlert />
+      <ErrorBoundary>
+        <DeviationAlert />
+      </ErrorBoundary>
 
-      {summary && <SummaryCards data={summary} />}
+      {summary && (
+        <ErrorBoundary>
+          <SummaryCards data={summary} />
+        </ErrorBoundary>
+      )}
 
-      <NetValueChart />
+      <ErrorBoundary>
+        <RiskMetricsCard />
+      </ErrorBoundary>
+
+      <ErrorBoundary>
+        <NetValueChart />
+      </ErrorBoundary>
 
       <div className="grid gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-1">
-          <AllocationChart data={allocation} />
+        <div className="lg:col-span-1 space-y-6">
+          <ErrorBoundary>
+            <AllocationChart data={allocation} />
+          </ErrorBoundary>
+          <ErrorBoundary>
+            <SectorAllocationCard />
+          </ErrorBoundary>
         </div>
         <div className="lg:col-span-2">
           <div className="space-y-3">
             <h2 className="text-lg font-medium">持仓明细</h2>
-            <HoldingsTable holdings={holdings} onRefresh={fetchData} />
+            <ErrorBoundary>
+              <HoldingsTable holdings={holdings} onRefresh={fetchData} />
+            </ErrorBoundary>
           </div>
         </div>
       </div>

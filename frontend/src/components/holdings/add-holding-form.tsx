@@ -18,9 +18,11 @@ export function AddHoldingForm({ onSuccess }: { onSuccess: () => void }) {
   const [symbol, setSymbol] = useState("");
   const [name, setName] = useState("");
   const [assetType, setAssetType] = useState<AssetType>("股票");
+  const [sector, setSector] = useState("");
   const [quantity, setQuantity] = useState("");
   const [costPrice, setCostPrice] = useState("");
   const [latestPrice, setLatestPrice] = useState("");
+  const [purchaseDate, setPurchaseDate] = useState("");
   const [account, setAccount] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -42,17 +44,22 @@ export function AddHoldingForm({ onSuccess }: { onSuccess: () => void }) {
         symbol,
         name,
         asset_type: assetType,
+        sector: sector || undefined,
         quantity: q,
         cost_price: cost,
         latest_price: latest,
+        purchase_date: purchaseDate || undefined,
+        cost_method: "fifo",
         account: account || undefined,
       });
       toast.success(`已添加「${name}」`);
       setSymbol("");
       setName("");
+      setSector("");
       setQuantity("");
       setCostPrice("");
       setLatestPrice("");
+      setPurchaseDate("");
       setAccount("");
       onSuccess();
     } catch {
@@ -109,6 +116,29 @@ export function AddHoldingForm({ onSuccess }: { onSuccess: () => void }) {
                 />
               </div>
             </div>
+
+            {assetType === "股票" && (
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="sector">行业（可选）</Label>
+                  <Input
+                    id="sector"
+                    value={sector}
+                    onChange={(e) => setSector(e.target.value)}
+                    placeholder="如：食品饮料、电子、银行"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="purchaseDate">买入日期（可选）</Label>
+                  <Input
+                    id="purchaseDate"
+                    type="date"
+                    value={purchaseDate}
+                    onChange={(e) => setPurchaseDate(e.target.value)}
+                  />
+                </div>
+              </div>
+            )}
 
             <div
               className={

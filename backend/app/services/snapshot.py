@@ -53,24 +53,41 @@ async def create_daily_snapshot(db: AsyncSession) -> Snapshot | None:
             "symbol": h.symbol,
             "name": h.name,
             "asset_type": h.asset_type,
+            "sector": h.sector,
             "quantity": str(h.quantity),
             "cost_price": str(h.cost_price),
             "latest_price": str(h.latest_price) if h.latest_price else None,
             "market_value": str(mv),
         })
 
+    # Calculate daily return from previous snapshot
+    daily_return = None
+    prev_result = await db.execute(
+        select(Snapshot)
+        .where(Snapshot.date < today)
+        .order_by(Snapshot.date.desc())
+        .limit(1)
+    )
+    prev_snapshot = prev_result.scalar_one_or_none()
+    if prev_snapshot and prev_snapshot.total_market_value > 0:
+        daily_return = float(
+            (total_market_value - prev_snapshot.total_market_value)
+            / prev_snapshot.total_market_value * 100
+        )
+
     snapshot = Snapshot(
         date=today,
         total_market_value=total_market_value,
         total_cost=total_cost,
         total_profit_loss=total_market_value - total_cost,
+        daily_return=daily_return,
         holdings_json=json.dumps(holdings_data, ensure_ascii=False),
     )
     db.add(snapshot)
     await db.commit()
     await db.refresh(snapshot)
 
-    logger.info(f"Created snapshot for {today}: market_value={total_market_value}")
+    logger.info(f"Created snapshot for {today}: market_value={total_market_value}, daily_return={daily_return}")
     return snapshot
 
 
