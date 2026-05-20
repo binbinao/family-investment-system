@@ -3,7 +3,6 @@
 from decimal import Decimal
 
 import pytest
-from sqlalchemy import select
 
 from app.models.holding import Holding
 from app.models.snapshot import Snapshot
