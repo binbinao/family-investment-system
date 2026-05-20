@@ -65,8 +65,6 @@ async def get_deviation(db: AsyncSession) -> dict:
         type_values[h.asset_type] += value
         total += value
 
-    target_map = {t.asset_type: float(t.target_ratio) for t in targets}
-
     deviations = []
     has_alert = False
 

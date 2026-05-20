@@ -1,6 +1,5 @@
 """DeepSeek AI service: quick chat + deep analysis with portfolio context."""
 
-import asyncio
 import json
 import logging
 from collections.abc import AsyncGenerator
@@ -209,7 +208,7 @@ async def quick_chat_stream(
 
     except Exception as e:
         logger.error(f"DeepSeek API error: {e}")
-        yield "data: " + json.dumps({"error": f"AI 服务暂时不可用，请稍后再试"}) + "\n\n"
+        yield "data: " + json.dumps({"error": "AI 服务暂时不可用，请稍后再试"}) + "\n\n"
 
 
 async def deep_analysis_stream(
