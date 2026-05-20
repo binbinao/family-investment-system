@@ -9,7 +9,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
 from app.models.daily_report import DailyReport
-from app.models.holding import Holding
 from app.services.ai import _build_portfolio_context
 
 logger = logging.getLogger(__name__)

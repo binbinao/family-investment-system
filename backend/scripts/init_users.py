@@ -8,7 +8,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from sqlalchemy import select
 
-from app.core.config import settings
 from app.core.database import async_session
 from app.core.security import hash_password
 from app.models import *  # noqa: F401, F403

@@ -31,7 +31,6 @@ async def get_summary(db: AsyncSession) -> DashboardSummary:
 
         if h.latest_price is not None:
             total_market_value += h.quantity * h.latest_price
-            has_price_data = True
         else:
             total_market_value += cost
 

@@ -3,7 +3,7 @@
 import json
 import logging
 import math
-from datetime import date, datetime, timedelta
+from datetime import date, timedelta
 from decimal import Decimal
 
 from sqlalchemy import select

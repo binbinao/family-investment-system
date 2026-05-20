@@ -1,18 +1,13 @@
 """Tests for dashboard risk metrics and sector allocation services."""
 
-import math
 from decimal import Decimal
-from unittest.mock import AsyncMock, patch
 
 import pytest
 from sqlalchemy import select
 
 from app.models.holding import Holding
 from app.models.snapshot import Snapshot
-from app.schemas.dashboard import RiskMetrics, SectorAllocation
 from app.services.dashboard import (
-    RISK_FREE_RATE_ANNUAL,
-    TRADING_DAYS_PER_YEAR,
     get_risk_metrics,
     get_sector_allocation,
 )
