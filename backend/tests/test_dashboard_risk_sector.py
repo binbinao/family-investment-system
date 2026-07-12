@@ -1,5 +1,6 @@
 """Tests for dashboard risk metrics and sector allocation services."""
 
+from datetime import date
 from decimal import Decimal
 
 import pytest
@@ -37,7 +38,7 @@ class TestGetRiskMetrics:
             if i > 0:
                 daily_ret = float((val - values[i - 1]) / values[i - 1] * 100)
             snap = Snapshot(
-                date=f"2025-01-{10 + i:02d}",
+                date=date(2025, 1, 10 + i),
                 total_market_value=Decimal(str(val)),
                 total_cost=Decimal("80000"),
                 total_profit_loss=Decimal(str(val - 80000)),
@@ -64,9 +65,9 @@ class TestGetRiskMetrics:
             values.append(base_value * (1 + r / 100))
 
         for i in range(len(values)):
-            daily_ret = returns[i - 1] if i > 0 else 0.0
+            daily_ret = returns[i - 1] if i > 0 else None
             snap = Snapshot(
-                date=f"2025-02-{10 + i:02d}",
+                date=date(2025, 2, 10 + i),
                 total_market_value=Decimal(str(int(values[i]))),
                 total_cost=Decimal("80000"),
                 total_profit_loss=Decimal(str(int(values[i] - 80000))),
@@ -95,7 +96,7 @@ class TestGetRiskMetrics:
         for i in range(len(values)):
             daily_ret = returns[i - 1] if i > 0 else 0.0
             snap = Snapshot(
-                date=f"2025-03-{1 + i:02d}",
+                date=date(2025, 3, 1 + i),
                 total_market_value=Decimal(str(int(values[i]))),
                 total_cost=Decimal("80000"),
                 total_profit_loss=Decimal(str(int(values[i] - 80000))),

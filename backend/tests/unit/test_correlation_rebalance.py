@@ -1,6 +1,5 @@
 """Tests for correlation matrix and rebalance services."""
 
-import math
 from decimal import Decimal
 
 from app.services.correlation import _pearson_corr

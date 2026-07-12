@@ -6,6 +6,7 @@ from datetime import date, datetime
 from decimal import Decimal, InvalidOperation
 
 from openpyxl import Workbook, load_workbook
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.holding import Holding
@@ -303,8 +304,6 @@ async def import_transactions(
     db: AsyncSession, file_content: bytes, user_id
 ) -> dict:
     """Import transactions from Excel. Returns success/error summary."""
-    from sqlalchemy import select
-
     wb = load_workbook(io.BytesIO(file_content), data_only=True)
     ws = wb["交易导入"] if "交易导入" in wb.sheetnames else wb.active
 

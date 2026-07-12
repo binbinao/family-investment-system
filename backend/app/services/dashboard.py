@@ -23,7 +23,6 @@ async def get_summary(db: AsyncSession) -> DashboardSummary:
 
     total_market_value = Decimal("0")
     total_cost = Decimal("0")
-    has_price_data = False
 
     for h in holdings:
         cost = h.quantity * h.cost_price

@@ -1,5 +1,6 @@
 """Daily AI morning report service."""
 
+import asyncio
 import logging
 from datetime import date
 
@@ -41,7 +42,7 @@ REPORT_PROMPT = """你是"齐家"家庭投资助手。请根据用户的持仓�
 async def _fetch_news_summary() -> str:
     """Fetch market news via AKShare."""
     try:
-        import asyncio
+        # 懒加载：akshare 会拉起 pandas 等重依赖，仅晨报路径需要，避免拖慢应用启动
         import akshare as ak
 
         df = await asyncio.to_thread(ak.stock_zh_a_alerts_cls)

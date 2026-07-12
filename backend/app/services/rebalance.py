@@ -1,5 +1,6 @@
 """Tax-aware rebalance service — considers trading costs & tax implications."""
 
+from collections import defaultdict
 from datetime import datetime
 from decimal import Decimal
 
@@ -155,8 +156,6 @@ async def get_rebalance_suggestion(
     holdings = h_result.scalars().all()
 
     # Calculate current allocation by asset_type
-    from collections import defaultdict
-
     type_values: dict[str, Decimal] = defaultdict(Decimal)
     type_holdings: dict[str, list[Holding]] = defaultdict(list)
     total = Decimal("0")
