@@ -7,6 +7,7 @@ from decimal import Decimal
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.time import utcnow
 from app.models.allocation_target import AllocationTarget
 from app.models.holding import Holding
 from app.schemas.dashboard import (
@@ -64,7 +65,7 @@ def _calc_holding_days(purchase_date: datetime | None) -> int:
     """Calculate days since purchase."""
     if purchase_date is None:
         return 365  # 默认按1年算（保守）
-    return (datetime.utcnow() - purchase_date).days
+    return (utcnow() - purchase_date).days
 
 
 def _compute_trade_costs(

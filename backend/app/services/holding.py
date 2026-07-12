@@ -1,11 +1,11 @@
 import json
 import uuid
-from datetime import datetime
 from decimal import Decimal
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.time import utcnow
 from app.models.holding import Holding
 from app.models.operation_log import OperationLog
 from app.schemas.holding import HoldingCreate, HoldingResponse, HoldingUpdate
@@ -67,7 +67,7 @@ async def create_holding(
         quantity=data.quantity,
         cost_price=data.cost_price,
         latest_price=data.latest_price,
-        latest_price_updated_at=datetime.utcnow() if data.latest_price else None,
+        latest_price_updated_at=utcnow() if data.latest_price else None,
         purchase_date=data.purchase_date,
         cost_method=data.cost_method,
         account=data.account,
@@ -116,7 +116,7 @@ async def update_holding(
         holding.sector = data.sector
         changes["sector"] = data.sector
 
-    holding.updated_at = datetime.utcnow()
+    holding.updated_at = utcnow()
 
     log = OperationLog(
         user_id=user_id,
@@ -164,8 +164,8 @@ async def update_price(
         return None
 
     holding.latest_price = latest_price
-    holding.latest_price_updated_at = datetime.utcnow()
-    holding.updated_at = datetime.utcnow()
+    holding.latest_price_updated_at = utcnow()
+    holding.updated_at = utcnow()
 
     log = OperationLog(
         user_id=user_id,

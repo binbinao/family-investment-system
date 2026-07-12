@@ -7,6 +7,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
+from app.core.time import utcnow
 
 
 class PriceCache(Base):
@@ -21,7 +22,7 @@ class PriceCache(Base):
     price_change: Mapped[Decimal | None] = mapped_column(Numeric(18, 4))
     price_change_pct: Mapped[Decimal | None] = mapped_column(Numeric(10, 4))
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow
+        DateTime(timezone=True), default=utcnow
     )
     source: Mapped[str] = mapped_column(String(20), default="akshare")
     fail_count: Mapped[int] = mapped_column(Integer, default=0)

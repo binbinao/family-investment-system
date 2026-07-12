@@ -11,6 +11,7 @@ from sqlalchemy import delete, func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.config import settings
+from app.core.time import utcnow
 from app.models.ai_conversation import AIConversation
 from app.models.holding import Holding
 
@@ -326,7 +327,7 @@ async def get_conversation_history(
 
 async def cleanup_old_conversations(db: AsyncSession) -> int:
     """Delete conversations older than 30 days. Returns count deleted."""
-    cutoff = datetime.utcnow() - timedelta(days=30)
+    cutoff = utcnow() - timedelta(days=30)
     result = await db.execute(
         delete(AIConversation).where(AIConversation.created_at < cutoff)
     )

@@ -16,6 +16,7 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.redis import get_redis
+from app.core.time import utcnow
 from app.models.holding import Holding
 from app.models.price_cache import PriceCache
 from app.services.market_sources import (
@@ -153,7 +154,7 @@ async def update_holding_price(
     price_cache = cache_result.scalar_one_or_none()
 
     if result:
-        now = datetime.utcnow()
+        now = utcnow()
         holding.latest_price = result["latest_price"]
         holding.latest_price_updated_at = now
 

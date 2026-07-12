@@ -9,6 +9,7 @@ from openpyxl import Workbook, load_workbook
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.time import utcnow
 from app.models.holding import Holding
 from app.models.transaction import Transaction
 
@@ -288,7 +289,7 @@ async def import_holdings(
             quantity=quantity,
             cost_price=cost_price,
             latest_price=latest_price,
-            latest_price_updated_at=datetime.utcnow() if latest_price else None,
+            latest_price_updated_at=utcnow() if latest_price else None,
             account=account,
         )
         db.add(holding)

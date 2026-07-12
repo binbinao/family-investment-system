@@ -1,12 +1,12 @@
 """Allocation target and deviation service."""
 
 from collections import defaultdict
-from datetime import datetime
 from decimal import Decimal
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core.time import utcnow
 from app.models.allocation_target import AllocationTarget
 from app.models.holding import Holding
 
@@ -31,7 +31,7 @@ async def update_targets(
         existing = result.scalar_one_or_none()
         if existing:
             existing.target_ratio = Decimal(str(t["target_ratio"]))
-            existing.updated_at = datetime.utcnow()
+            existing.updated_at = utcnow()
         else:
             db.add(
                 AllocationTarget(

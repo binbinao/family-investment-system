@@ -7,6 +7,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
+from app.core.time import utcnow
 
 # 申万一级行业分类
 SECTOR_CHOICES = (
@@ -32,8 +33,8 @@ class Holding(Base):
     quantity: Mapped[Decimal] = mapped_column(Numeric(18, 4), nullable=False)
     cost_price: Mapped[Decimal] = mapped_column(Numeric(18, 4), nullable=False)
     latest_price: Mapped[Decimal | None] = mapped_column(Numeric(18, 4))
-    latest_price_updated_at: Mapped[datetime | None] = mapped_column(DateTime)
-    purchase_date: Mapped[datetime | None] = mapped_column(DateTime, nullable=True, comment="首次买入日期")
+    latest_price_updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    purchase_date: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, comment="首次买入日期")
     cost_method: Mapped[str] = mapped_column(
         Enum("fifo", "average", name="cost_method_enum", create_constraint=True),
         default="fifo",
@@ -42,8 +43,8 @@ class Holding(Base):
     )
     account: Mapped[str | None] = mapped_column(String(100))
     created_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow
+        DateTime(timezone=True), default=utcnow
     )
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow
+        DateTime(timezone=True), default=utcnow, onupdate=utcnow
     )

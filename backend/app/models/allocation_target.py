@@ -7,6 +7,7 @@ from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.core.database import Base
+from app.core.time import utcnow
 
 
 class AllocationTarget(Base):
@@ -18,5 +19,5 @@ class AllocationTarget(Base):
     asset_type: Mapped[str] = mapped_column(String(20), unique=True, nullable=False)
     target_ratio: Mapped[Decimal] = mapped_column(Numeric(5, 2), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(
-        DateTime, default=datetime.utcnow
+        DateTime(timezone=True), default=utcnow
     )
