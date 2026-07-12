@@ -18,11 +18,14 @@ logger = logging.getLogger(__name__)
 
 DISCLAIMER = "\n\n---\n*以上内容仅供参考，不构成投资建议。*"
 
+LLM_TIMEOUT_SECONDS = 60.0
+
 
 def _get_client() -> AsyncOpenAI:
     return AsyncOpenAI(
         api_key=settings.resolved_llm_api_key(),
         base_url=settings.resolved_llm_base_url(),
+        timeout=LLM_TIMEOUT_SECONDS,
     )
 
 

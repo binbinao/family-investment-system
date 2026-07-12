@@ -10,8 +10,8 @@ python-dotenv==1.0.1
 pydantic==2.9.0
 pydantic-settings==2.5.0
 httpx==0.27.0
-openai
-akshare
+openai==2.30.0
+akshare==1.18.51
 apscheduler==3.10.4
 openpyxl==3.1.5
 python-multipart==0.0.9
