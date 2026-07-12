@@ -39,6 +39,11 @@ __pycache__/
 venv/
 .venv/
 
+# Tooling caches
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
 # Test coverage
 coverage/
 .nyc_output/
