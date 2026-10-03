@@ -220,6 +220,11 @@ export interface MarketStatus {
 export interface ImportResult {
   success: { row: number; symbol: string; name?: string; type?: string }[];
   errors: { row: number; error: string }[];
+  /** 仅初始建档导入返回：配置目标 sheet 的处理结果 */
+  targets?: {
+    updated: boolean;
+    errors: { row: number; error: string }[];
+  };
 }
 
 export interface AIConversation {

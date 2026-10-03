@@ -49,6 +49,7 @@ export default function TradePage() {
           />
         </TabsContent>
         <TabsContent value="import" className="mt-4 space-y-4">
+          <ExcelImport type="initial" onSuccess={fetchHoldings} />
           <ExcelImport type="holdings" onSuccess={fetchHoldings} />
           <ExcelImport type="transactions" onSuccess={fetchHoldings} />
         </TabsContent>

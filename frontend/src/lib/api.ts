@@ -52,6 +52,18 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   return res.json();
 }
 
+async function uploadImportFile(path: string, file: File): Promise<ImportResult> {
+  const formData = new FormData();
+  formData.append("file", file);
+  const res = await fetch(`${API_BASE}${path}`, {
+    method: "POST",
+    credentials: "include",
+    body: formData,
+  });
+  if (!res.ok) throw new ApiError(res.status, await res.text());
+  return res.json();
+}
+
 export const api = {
   auth: {
     login: (data: LoginRequest) =>
@@ -145,31 +157,10 @@ export const api = {
   },
 
   import: {
-    holdings: (file: File) => {
-      const formData = new FormData();
-      formData.append("file", file);
-      return fetch(`${API_BASE}/import/holdings`, {
-        method: "POST",
-        credentials: "include",
-        body: formData,
-      }).then(async (res) => {
-        if (!res.ok) throw new ApiError(res.status, await res.text());
-        return res.json() as Promise<ImportResult>;
-      });
-    },
-    transactions: (file: File) => {
-      const formData = new FormData();
-      formData.append("file", file);
-      return fetch(`${API_BASE}/import/transactions`, {
-        method: "POST",
-        credentials: "include",
-        body: formData,
-      }).then(async (res) => {
-        if (!res.ok) throw new ApiError(res.status, await res.text());
-        return res.json() as Promise<ImportResult>;
-      });
-    },
-    templateUrl: (type: "holdings" | "transactions") =>
+    holdings: (file: File) => uploadImportFile("/import/holdings", file),
+    transactions: (file: File) => uploadImportFile("/import/transactions", file),
+    initial: (file: File) => uploadImportFile("/import/initial", file),
+    templateUrl: (type: "holdings" | "transactions" | "initial") =>
       `${API_BASE}/import/template/${type}`,
   },
 

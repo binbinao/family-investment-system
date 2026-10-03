@@ -12,6 +12,52 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.time import utcnow
 from app.models.holding import Holding
 from app.models.transaction import Transaction
+from app.services.allocation import update_targets
+
+
+def _holding_template_wb() -> Workbook:
+    """持仓 sheet + 填写说明（供持仓模板与初始建档模板共用）。"""
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "持仓导入"
+    headers = [
+        "标识代码",
+        "名称",
+        "资产类型",
+        "数量",
+        "单位成本",
+        "最新价(可选)",
+        "账户(可选)",
+    ]
+    ws.append(headers)
+    ws.append(["600519", "贵州茅台", "股票", 100, 1800.00, 1850.00, "张三-华泰"])
+    ws.append(["005827", "易方达蓝筹精选", "基金", 5000, 2.50, 2.55, ""])
+    ws.append(["019666", "示例国债", "债券", 100, 101.20, 100.50, ""])
+    ws.append(["CNY-活期", "工商银行活期", "现金", 50000, 1, 1, ""])
+    ws.append(["ALT-01", "其他资产示例", "其他", 10, 100.00, "", ""])
+
+    ws_help = wb.create_sheet("填写说明", 1)
+    help_lines = [
+        "【持仓导入】各「资产类型」填写规则（与网页记账一致）",
+        "",
+        "股票：数量为股数；单位成本=元/股；最新价可选=当前市价（元/股）。",
+        "基金：数量为份额；单位成本=元/份（建仓净值）；最新价可选=当前净值（元/份）。",
+        "债券：数量一般为张数；单位成本=净价（元）；最新价可选=估值净价。",
+        "现金：数量=账户余额（元）；单位成本请填 1（留空时导入将自动按 1）；最新价可填 1 或留空。",
+        "其他：按自定义单位填写数量与单位成本。",
+        "",
+        "请勿修改第一列表头名称；可增加行，不要合并数据区单元格。",
+    ]
+    for i, line in enumerate(help_lines, start=1):
+        ws_help.cell(row=i, column=1, value=line)
+    return wb
+
+
+def create_holding_template() -> bytes:
+    buf = io.BytesIO()
+    _holding_template_wb().save(buf)
+    return buf.getvalue()
+
 
 logger = logging.getLogger(__name__)
 
@@ -177,6 +223,86 @@ def create_transaction_template() -> bytes:
     buf = io.BytesIO()
     wb.save(buf)
     return buf.getvalue()
+
+
+INITIAL_TARGET_HEADERS = ("资产类型", "目标比例(%)")
+
+
+def create_initial_template() -> bytes:
+    """初始建档模板：持仓 + 配置目标 双 sheet。"""
+    wb = _holding_template_wb()
+    ws_t = wb.create_sheet("配置目标")
+    ws_t.append(list(INITIAL_TARGET_HEADERS))
+    ws_t.append(["股票", 40])
+    ws_t.append(["基金", 30])
+    ws_t.append(["债券", 10])
+    ws_t.append(["现金", 20])
+
+    ws_help = wb["填写说明"]
+    help_lines = [
+        "",
+        "【配置目标】（可选填写）：各资产类型的目标比例（%），用于首页偏离提醒与调仓建议。",
+        "资产类型必须是：股票 / 基金 / 债券 / 现金 / 其他；比例填 0-100 的数字，不必凑成 100%。",
+        "不填此 sheet（删除或整行留空）则跳过配置目标导入。",
+    ]
+    for i, line in enumerate(help_lines, start=ws_help.max_row + 2):
+        ws_help.cell(row=i, column=1, value=line)
+
+    buf = io.BytesIO()
+    wb.save(buf)
+    return buf.getvalue()
+
+
+async def import_initial(db: AsyncSession, file_content: bytes, user_id) -> dict:
+    """一次性导入初始建档：持仓 sheet + 配置目标 sheet。
+
+    持仓沿用 import_holdings 全部校验；配置目标逐行校验后经
+    update_targets upsert。任一部分失败不影响另一部分（部分成功）。
+    """
+    wb = load_workbook(io.BytesIO(file_content), data_only=True)
+
+    holdings_ws = wb["持仓导入"] if "持仓导入" in wb.sheetnames else wb.active
+    holdings_buf = io.BytesIO()
+    holdings_wb = Workbook()
+    holdings_wb.active.title = "持仓导入"
+    for row in holdings_ws.iter_rows(values_only=True):
+        holdings_wb.active.append(list(row))
+    holdings_wb.save(holdings_buf)
+    results = await import_holdings(db, holdings_buf.getvalue())
+
+    targets_result = {"updated": False, "errors": []}
+    if "配置目标" in wb.sheetnames:
+        ws_t = wb["配置目标"]
+        rows = list(ws_t.iter_rows(min_row=2, values_only=True))
+        valid_targets = []
+        for i, row in enumerate(rows, start=2):
+            if not row or all(c is None or str(c).strip() == "" for c in row):
+                continue
+            asset_type_raw = row[0] if len(row) > 0 else None
+            ratio_raw = row[1] if len(row) > 1 else None
+            asset_type = str(asset_type_raw).strip() if asset_type_raw else None
+            errors = []
+            if asset_type not in VALID_ASSET_TYPES:
+                errors.append(f"资产类型无效: {asset_type}")
+            ratio, err = _parse_decimal(ratio_raw, "比例")
+            if err:
+                errors.append(err)
+            elif not (Decimal("0") <= ratio <= Decimal("100")):
+                errors.append(f"比例需在 0-100 之间: {ratio}")
+            if errors:
+                targets_result["errors"].append(
+                    {"row": i, "error": "; ".join(errors)}
+                )
+                continue
+            valid_targets.append(
+                {"asset_type": asset_type, "target_ratio": ratio}
+            )
+        if valid_targets and not targets_result["errors"]:
+            await update_targets(db, valid_targets)
+            targets_result["updated"] = True
+
+    results["targets"] = targets_result
+    return results
 
 
 def _parse_decimal(value, field_name: str) -> tuple[Decimal | None, str | None]:

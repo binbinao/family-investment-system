@@ -9,16 +9,22 @@ import { toast } from "sonner";
 import type { ImportResult } from "@/types";
 
 interface ExcelImportProps {
-  type: "holdings" | "transactions";
+  type: "holdings" | "transactions" | "initial";
   onSuccess?: () => void;
 }
+
+const TYPE_LABELS: Record<ExcelImportProps["type"], string> = {
+  holdings: "持仓",
+  transactions: "交易",
+  initial: "初始建档",
+};
 
 export function ExcelImport({ type, onSuccess }: ExcelImportProps) {
   const [result, setResult] = useState<ImportResult | null>(null);
   const [uploading, setUploading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const label = type === "holdings" ? "持仓" : "交易";
+  const label = TYPE_LABELS[type];
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -29,12 +35,20 @@ export function ExcelImport({ type, onSuccess }: ExcelImportProps) {
 
     try {
       const importFn =
-        type === "holdings" ? api.import.holdings : api.import.transactions;
+        type === "holdings"
+          ? api.import.holdings
+          : type === "transactions"
+            ? api.import.transactions
+            : api.import.initial;
       const res = await importFn(file);
       setResult(res);
 
       if (res.errors.length === 0) {
-        toast.success(`成功导入 ${res.success.length} 条${label}记录`);
+        const targetsNote =
+          type === "initial" && res.targets?.updated ? "，配置目标已更新" : "";
+        toast.success(
+          `成功导入 ${res.success.length} 条${label}记录${targetsNote}`,
+        );
       } else {
         toast.warning(
           `导入完成：成功 ${res.success.length} 条，失败 ${res.errors.length} 条`,
@@ -60,8 +74,9 @@ export function ExcelImport({ type, onSuccess }: ExcelImportProps) {
       </CardHeader>
       <CardContent className="space-y-4">
         <p className="text-sm text-muted-foreground">
-          模板含「填写说明」工作表：按股票 / 基金 / 债券 / 现金等含义填列；现金持仓「单位成本」可留空（按
-          1 处理）。首行须为表头，勿删列名。
+          {type === "initial"
+            ? "新家庭一次性建档：模板含「持仓导入」与「配置目标」两个工作表，填好后一次上传即可同时完成持仓录入与资产配置目标设定。"
+            : "模板含「填写说明」工作表：按股票 / 基金 / 债券 / 现金等含义填列；现金持仓「单位成本」可留空（按 1 处理）。首行须为表头，勿删列名。"}
         </p>
         <div className="flex items-center gap-3">
           <a
@@ -96,6 +111,25 @@ export function ExcelImport({ type, onSuccess }: ExcelImportProps) {
             {result.success.length > 0 && (
               <div className="rounded-md bg-green-50 p-3 text-green-700">
                 成功导入 {result.success.length} 条记录
+              </div>
+            )}
+            {result.targets?.updated && (
+              <div className="rounded-md bg-green-50 p-3 text-green-700">
+                配置目标已更新
+              </div>
+            )}
+            {result.targets && result.targets.errors.length > 0 && (
+              <div className="rounded-md bg-red-50 p-3 text-red-700">
+                <p className="mb-1 font-medium">
+                  {result.targets.errors.length} 条配置目标未导入：
+                </p>
+                <ul className="list-inside list-disc space-y-0.5">
+                  {result.targets.errors.map((err) => (
+                    <li key={err.row}>
+                      第 {err.row} 行：{err.error}
+                    </li>
+                  ))}
+                </ul>
               </div>
             )}
             {result.errors.length > 0 && (

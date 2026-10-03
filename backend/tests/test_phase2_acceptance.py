@@ -122,3 +122,40 @@ async def test_excel_import_holdings_success_and_row_error(
     listed = await authenticated_client.get("/api/v1/holdings")
     symbols = {h["symbol"] for h in listed.json()}
     assert "IMP-OK-1" in symbols
+
+
+@pytest.mark.asyncio
+async def test_import_template_initial_xlsx_contains_both_sheets(
+    authenticated_client: AsyncClient,
+):
+    r = await authenticated_client.get("/api/v1/import/template/initial")
+    assert r.status_code == 200
+    assert r.headers.get("content-type", "").startswith(
+        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+    wb = openpyxl.load_workbook(io.BytesIO(r.content))
+    assert "持仓导入" in wb.sheetnames
+    assert "配置目标" in wb.sheetnames
+
+
+@pytest.mark.asyncio
+async def test_import_initial_endpoint_round_trip(
+    authenticated_client: AsyncClient,
+):
+    """下载初始建档模板 → 原样上传 → 持仓与配置目标均入库。"""
+    tmpl = await authenticated_client.get("/api/v1/import/template/initial")
+    assert tmpl.status_code == 200
+    files = {"file": ("initial.xlsx", tmpl.content, "application/octet-stream")}
+    r = await authenticated_client.post("/api/v1/import/initial", files=files)
+    assert r.status_code == 200
+    data = r.json()
+    assert len(data["success"]) >= 1
+    assert data["errors"] == []
+    assert data["targets"]["updated"] is True
+    assert data["targets"]["errors"] == []
+
+    targets = await authenticated_client.get("/api/v1/allocation/targets")
+    assert {t["asset_type"] for t in targets.json()} >= {"股票", "基金"}
+
+    listed = await authenticated_client.get("/api/v1/holdings")
+    assert "600519" in {h["symbol"] for h in listed.json()}

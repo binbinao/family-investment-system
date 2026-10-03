@@ -9,8 +9,10 @@ from app.core.deps import get_current_user
 from app.models.user import User
 from app.services.excel_import import (
     create_holding_template,
+    create_initial_template,
     create_transaction_template,
     import_holdings,
+    import_initial,
     import_transactions,
 )
 
@@ -25,8 +27,11 @@ async def download_template(template_type: str):
     elif template_type == "transactions":
         content = create_transaction_template()
         filename = "交易导入模板.xlsx"
+    elif template_type == "initial":
+        content = create_initial_template()
+        filename = "初始建档模板.xlsx"
     else:
-        return {"error": "无效的模板类型，请使用 holdings 或 transactions"}
+        return {"error": "无效的模板类型，请使用 holdings / transactions / initial"}
 
     encoded_name = quote(filename)
     return Response(
@@ -57,4 +62,15 @@ async def upload_transactions(
 ):
     content = await file.read()
     result = await import_transactions(db, content, user.id)
+    return result
+
+
+@router.post("/initial")
+async def upload_initial(
+    file: UploadFile = File(...),
+    db: AsyncSession = Depends(get_db),
+    user: User = Depends(get_current_user),
+):
+    content = await file.read()
+    result = await import_initial(db, content, user.id)
     return result
